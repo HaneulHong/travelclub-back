@@ -64,7 +64,11 @@ public class MembershipServiceLogic implements MembershipService {
 
     @Override
     public Membership findMembership(String membershipId) {
-        return membershipStore.retrieve(membershipId);
+        Membership foundMembership = membershipStore.retrieve(membershipId);
+        if (foundMembership == null) {
+            throw new NoSuchMembershipException("No such membership with id --> " + membershipId);
+        }
+        return foundMembership;
     }
 
     /*@Override
@@ -80,16 +84,28 @@ public class MembershipServiceLogic implements MembershipService {
             throw new NoSuchMemberException("No such member with email " + memberEmail);
         }
 
-        return membershipStore.retrieve(clubId);
+        Membership foundMembership = membershipStore.retrieveByClubIdAndMemberEmail(clubId, memberEmail);
+        if (foundMembership == null) {
+            throw new NoSuchMembershipException("No such membership with id & email --> " + clubId + "," + memberEmail);
+        }
+        return foundMembership;
     }
 
     @Override
     public List<Membership> findAllMembershipsOfClub(String clubId) {
-        return membershipStore.retrieveByClubId(clubId);
+        List<Membership> foundMemberships = membershipStore.retrieveByClubId(clubId);
+        if (foundMemberships == null) {
+            throw new NoSuchMembershipException("No such membership with id --> " + clubId);
+        }
+        return foundMemberships;
     }
 
     @Override
     public List<Membership> findAllMembershipsOfMember(String memberEmail) {
+        List<Membership> foundMemberships = membershipStore.retrieveByMemberEmail(memberEmail);
+        if (foundMemberships == null) {
+            throw new NoSuchMembershipException("No such membership with email --> " + memberEmail);
+        }
         return membershipStore.retrieveByMemberEmail(memberEmail);
     }
 
@@ -108,6 +124,9 @@ public class MembershipServiceLogic implements MembershipService {
 
     @Override
     public void removeMembership(String membershipId) {
+        if (membershipStore.exists(membershipId)) {
+            throw new NoSuchMembershipException("No such membership with id --> " + membershipId);
+        }
         membershipStore.delete(membershipId);
     }
 }

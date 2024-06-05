@@ -69,12 +69,20 @@ public class MemberServiceLogic implements MemberService {
 
 	@Override
 	public CommunityMember findMemberByEmail(String email) {
-		return memberStore.retrieveByEmail(email);
+		CommunityMember foundMembers = memberStore.retrieveByEmail(email);
+		if (foundMembers == null) {
+			throw new NoSuchMemberException("No such Member with email --> " + email);
+		}
+		return foundMembers;
 	}
 
 	@Override
 	public List<CommunityMember> findMembersByName(String name) {
-		return memberStore.retrieveByName(name);
+		List<CommunityMember> foundMembers = memberStore.retrieveByName(name);
+		if (foundMembers == null) {
+			throw new NoSuchMemberException("No such Member with name --> " + name);
+		}
+		return foundMembers;
 	}
 
 	@Override

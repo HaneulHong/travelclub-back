@@ -5,6 +5,7 @@ import io.namoosori.travelclub.service.ClubService;
 import io.namoosori.travelclub.service.sdo.TravelClubCdo;
 import io.namoosori.travelclub.shared.NameValueList;
 import io.namoosori.travelclub.store.ClubStore;
+import io.namoosori.travelclub.util.exception.ClubDuplicationException;
 import io.namoosori.travelclub.util.exception.NoSuchClubException;
 import org.springframework.stereotype.Service;
 
@@ -23,23 +24,38 @@ public class ClubServiceLogic implements ClubService {
 	public String registerClub(TravelClubCdo clubCdo) {
 		TravelClub club = new TravelClub(clubCdo.getName(), clubCdo.getIntro());
 		club.checkValidation();
+		if (clubStore.retrieveByName(club.getName()) != null) {
+			throw new ClubDuplicationException("Club already exist with name --> " + club.getName());
+		}
 		String clubId = clubStore.create(club);
 		return clubId;
 	}
 
 	@Override
 	public TravelClub findClubById(String id) {
-		return clubStore.retrieve(id);
+		TravelClub foundClub = clubStore.retrieve(id);
+		if (foundClub == null) {
+			throw new NoSuchClubException("No such club with id --> " + id);
+		}
+		return foundClub;
 	}
 
 	@Override
 	public List<TravelClub> findClubsByName(String name) {
-		return clubStore.retrieveByName(name);
+		List<TravelClub> foundClubs = clubStore.retrieveByName(name);
+		if (foundClubs == null) {
+			throw new NoSuchClubException("No such club with name --> " + name);
+		}
+		return foundClubs;
 	}
 
 	@Override
 	public List<TravelClub> findAll(){
-		return clubStore.retrieveAll();
+		List<TravelClub> foundClubs = clubStore.retrieveAll();
+		if (foundClubs == null) {
+			throw new NoSuchClubException("No such clubs");
+		}
+		return foundClubs;
 	}
 
 	@Override
